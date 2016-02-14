@@ -83,7 +83,7 @@
   {{/locomotives}}
   {{#each locomotives}}
     <tr>
-      <td>{{#if type=="locomotive"}}<i class="fa fa-subway"></i>{{/if}}</td>
+      <td>{{#if type=="locomotive"}}<i class="fa fa-subway"></i>{{else}}<i class="fa fa-yahoo"></i>{{/if}}</td>
       <td>{{id}}</td>
       <td><a href='javascript:' on-click="expandLoco">{{name}}</a></td>
       <td><a href='/{{id}}'>{{speed}}</a></td>

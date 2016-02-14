@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang='en-GB'>
+<head>
+  <meta charset='utf-8'>
+  <title>YMRC - Yves Model Railway Control</title>
+
+  <script src='http://cdn.ractivejs.org/latest/ractive.min.js'></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
+  <style>
+  .context-menu {
+    display: none;
+    position: absolute;
+  z-index: 10;
+  }
+
+  .context-menu--active {
+    display: block;
+  }
+
+  .locomotives {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.loco {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: solid 1px #dfdfdf;
+}
+
+.loco:last-child {
+  border-bottom: none;
+}
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+    #locos {
+        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    #locos td, #locos th {
+        border: 1px solid #ddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    #locos tr:nth-child(even){background-color: #f2f2f2}
+
+    #locos tr:hover {background-color: #ddd;}
+
+    #locos th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        background-color: #4CAF50;
+        color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <div id='container'></div>
+
+  <script id='template' type='text/ractive'>
+  <table id="locos">
+    <tr>
+      <td style="width:1%">Type</td>
+      <td>ID</td>
+      <td>Name</td>
+      <td>Current Speed</td>
+    </tr>
+  {{^locomotives}}
+    LOADING...
+  {{/locomotives}}
+  {{#each locomotives}}
+    <tr>
+      <td>{{#if type=="locomotive"}}<i class="fa fa-subway"></i>{{/if}}</td>
+      <td>{{id}}</td>
+      <td><a href='javascript:' on-click="expandLoco">{{name}}</a></td>
+      <td><a href='/{{id}}'>{{speed}}</a></td>
+    </tr>
+  {{/each}}
+  </table>
+  </script>
+
+  <script>
+    var ractive = new Ractive({
+      el: '#container',
+      template: '#template',
+      data: {locomotives: []}
+    });
+      function updateLocoList () {
+        $.ajax("/loco_list", {
+            dataType: 'json',
+            jsonp: false
+          })
+          .then(function (locos) {
+            ractive.set('locoUpdateError', false);
+            ractive.set('locomotives', locos);
+          }).fail(function () {
+            ractive.set('networksUpdateError', true);
+          });
+      }
+
+      var locoUpdateId = setInterval(updateLocoList, 5000);
+  </script>
+
+
+</body>
+</html>

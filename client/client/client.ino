@@ -61,16 +61,16 @@ void handleControl() {
       if(server.arg("speed").toInt() > 0) {
         motor_speed = server.arg("speed").toInt();
         move(1, motor_speed, motor_direction);
-        Serial.println("[C][LOCO]Set Speed to "+server.arg("speed")+".");
+        Serial.println("[C][LOCO] Set Speed to "+server.arg("speed")+".");
       } else {
         motor_speed = 0;
         move(1, motor_speed, motor_direction);
-        Serial.println("[C][LOCO]Invalid Speed. Too low.  Set Speed to 0.");
+        Serial.println("[C][LOCO] Invalid Speed. Too low.  Set Speed to 0.");
       }
     } else {
       motor_speed = 255;
       move(1, motor_speed, motor_direction);
-      Serial.println("[C][LOCO]Invalid Speed. Too high.  Set Speed to 255.");
+      Serial.println("[C][LOCO] Invalid Speed. Too high.  Set Speed to 255.");
     }
   }
   if ( server.hasArg("direction") ) {
@@ -81,13 +81,13 @@ void handleControl() {
     if( server.arg("direction") == "normal" ) {
       motor_direction = 1;
       move(1, motor_speed, motor_direction);
-      Serial.println("[C][LOCO]Set Forward Running.");
+      Serial.println("[C][LOCO] Set Forward Running.");
     } else if( server.arg("direction") == "reverse" ) {
       motor_direction = 0;
       move(1, motor_speed, motor_direction);
-      Serial.println("[C][LOCO]Set Backward Running.");
+      Serial.println("[C][LOCO] Set Backward Running.");
     } else {
-      Serial.println("[C][LOCO]Invalid direction. Set STOP. [" + server.arg("direction")) + "].";
+      Serial.println("[C][LOCO] Invalid direction. Set STOP. [" + server.arg("direction")) + "].";
       motor_speed = 0;
       move(1, motor_speed, motor_direction);
     }
@@ -134,9 +134,9 @@ void setup() {
     server.on("/inline", [](){
       server.send(200, "text/plain", "inline http request");
     });
-  
+
     server.onNotFound(handleNotFound);
-  
+
     server.begin();
     Serial.println("HTTP server started");
 }
@@ -145,18 +145,14 @@ void report_to_server(){
   HTTPClient http;
 
   USE_SERIAL.print("[HTTP] begin...\n");
-  // configure traged server and url
-  //http.begin("192.168.1.12", 443, "/test.html", true, "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); //HTTPS
   http.begin("192.168.1.7", 8080, "/loco?id=0"); //HTTP
 
   USE_SERIAL.print("[HTTP] GET...\n");
   // start connection and send HTTP header
   int httpCode = http.GET();
   if(httpCode) {
-      // HTTP header has been send and Server response header has been handled
       USE_SERIAL.printf("[HTTP] GET... code: %d\n", httpCode);
 
-      // file found at server
       if(httpCode == 200) {
           String payload = http.getString();
           if(payload == "ACK"){
@@ -172,7 +168,6 @@ void report_to_server(){
 }
 
 void loop() {
-    // wait for WiFi connection
     if((WiFiMulti.run() == WL_CONNECTED)) {
       if(reported_in == 0) {
         report_to_server();
@@ -184,4 +179,3 @@ void loop() {
       server.handleClient();
     }
 }
-

@@ -1,25 +1,32 @@
 //Lets require/import the HTTP module
+var express = require('express');
+var app = express();
+
 var http = require('http');
 var requestIp = require('request-ip');
 var locos = [];
 //Lets define a port we want to listen to
 const PORT=8080;
 
-//We need a function which handles requests and send response
-function handleRequest(request, response){
-  // IP address is request.headers['host']
-  // getting request details is require('url').parse(request.url, true)['query']
-  console.log("[LOCO] Received request from " + request.headers['host'] + " with ID of " + require('url').parse(request.url, true)['query']['id']);
-  var ip = requestIp.getClientIp(request);
+app.get('/loco', function (req, res) {
+  console.log("[LOCO] Received request from " + req.ip + " with ID of " + req.query.id);
   locos.push({
-    id: parseInt(require('url').parse(request.url, true)['query']['id']),
-    ip: ip,
+    id: parseInt(req.query.id),
+    ip: req.ip,
+    name: req.query.n,
+      type: req.query.t,
     speed: 0
   });
   console.log(locos);
-  setLocoSpeed(parseInt(require('url').parse(request.url, true)['query']['id']), 100)
-  response.end('ACK');
-}
+  res.send('ACK');
+});
+
+app.get('/loco_list', function (req, res){
+  res.contentType('application/json');
+  res.send(JSON.stringify(locos));
+});
+
+app.use(express.static('static'));
 
 function findLoco(arr_loco, loco_id){
   for ( var i in arr_loco ) {
@@ -40,11 +47,6 @@ function setLocoSpeed(loco_id, loco_speed){
   }
 }
 
-//Create a server
-var server = http.createServer(handleRequest);
-
-//Lets start our server
-server.listen(PORT, function(){
-    //Callback triggered when server is successfully listening. Hurray!
-    console.log("Server listening on: http://localhost:%s", PORT);
+app.listen(8080, function() {
+  console.log('[WEB] Listening on Port 8080.');
 });
